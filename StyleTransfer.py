@@ -8,17 +8,19 @@ from PIL import Image
 
 def openImage(path, shape = 500):
 	input_transform = transforms.Compose([transforms.Resize((shape,shape)),
-											transforms.ToTensor(),
-											transforms.Normalize((0.485, 0.456, 0.406),
-																	(0.229, 0.224, 0.225))
-											])
+					      transforms.ToTensor(),
+					      transforms.Normalize((0.485, 0.456, 0.406),
+								   (0.229, 0.224, 0.225))
+					     ])
 	image = Image.open(path).convert('RGB')
 	image = input_transform(image).unsqueeze(0)
 	return image 
+
 def convert(image):
 	image = image.squeeze().permute(1,2,0).detach().to("cpu").numpy()
 	image = image * np.array((0.229, 0.224, 0.225)) + np.array((0.485, 0.456, 0.406))
 	return image 
+
 def getFeatures(image, model):
 	x = image 
 	layers = ['0','3','6','8','11','13','16','18']
@@ -28,6 +30,7 @@ def getFeatures(image, model):
 		if name in layers:
 			features.append(x)
 	return features 
+
 def getGramMatrix(inp):
 	b,d,h,w = inp.size()
 	inp = inp.view(d, h*w)
@@ -41,16 +44,17 @@ vgg = models.vgg11(pretrained = True).features
 for parameter in vgg.parameters():
 	parameter.requires_grad_(False)
 vgg = vgg.to(device)
-
-content_image = openImage(os.getcwd()+'/me1.jpg').to(device)
-style_image = openImage(os.getcwd()+'/paint.jpeg').to(device)
+content_path = '<content image>'
+style_path = '<style image>'
+content_image = openImage(os.getcwd() + content_path).to(device)
+style_image = openImage(os.getcwd() + style_path).to(device)
 image_features = getFeatures(content_image, vgg_features)
 image_style = [getGramMatrix(feature) for feature in getFeatures(style_image, vgg_features)]
 target_image = content_image.clone().requires_grad_(True).to(device)
 
 optimizer = torch.optim.Adam([target_image], lr = 0.001)
 
-epochs = 1
+epochs = 100
 alpha = 10
 beta = 5
 style_weights = [1, 0.8, 0.7, 0.6, 0.5, 0.3, 0.2, 0.1]
