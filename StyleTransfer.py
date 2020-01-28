@@ -46,8 +46,8 @@ for parameter in vgg.parameters():
 vgg = vgg.to(device)
 content_path = '<content image>'
 style_path = '<style image>'
-content_image = openImage(os.getcwd() + content_path).to(device)
-style_image = openImage(os.getcwd() + style_path).to(device)
+content_image = openImage(content_path).to(device)
+style_image = openImage(style_path).to(device)
 image_features = getFeatures(content_image, vgg)
 image_style = [getGramMatrix(feature) for feature in getFeatures(style_image, vgg)]
 target_image = content_image.clone().requires_grad_(True).to(device)
