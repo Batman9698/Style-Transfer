@@ -1,2 +1,2 @@
-# Style-Transfer-VGG11
-implementation of neural style transfer with VGG11 using pytorch framework
+# Style-Transfer
+implementation of neural style transfer with VGG19 CNN using pytorch framework
